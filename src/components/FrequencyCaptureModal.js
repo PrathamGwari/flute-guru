@@ -12,6 +12,7 @@ const FrequencyCaptureModal = ({
   timeData,
   currentFrequency,
   setCurrentFrequency,
+  noiseReducer,
 }) => {
   const [isCapturing, setIsCapturing] = useState(false);
   const [soundDetected, setSoundDetected] = useState(false);
@@ -84,7 +85,7 @@ const FrequencyCaptureModal = ({
         }
       }
 
-      const hasSignal = maxValue > 30 && totalEnergy > 1000;
+      const hasSignal = maxValue > 20 && totalEnergy > 500;
       setSoundDetected(hasSignal);
 
       if (hasSignal) {
@@ -195,6 +196,19 @@ const FrequencyCaptureModal = ({
                 Live: {currentFrequency > 0 ? `${currentFrequency} Hz` : "--"}
               </span>
             </div>
+            {noiseReducer && (
+              <div className="noise-status-capture">
+                {!noiseReducer.noiseProfileReady ? (
+                  <span className="noise-learning-small">
+                    🎵 Learning noise...
+                  </span>
+                ) : (
+                  <span className="noise-ready-small">
+                    ✅ Noise reduction active
+                  </span>
+                )}
+              </div>
+            )}
             {capturedFrequency && (
               <div className="capture-result">
                 <div className="result-label">Captured Frequency:</div>

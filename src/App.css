@@ -90,6 +90,33 @@ h3 {
   font-weight: 500;
 }
 
+.noise-reduction-status {
+  margin-top: 10px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.noise-learning {
+  color: #f57c00;
+  background-color: #fff3e0;
+  border: 1px solid #ffcc02;
+}
+
+.noise-ready {
+  color: #2e7d32;
+  background-color: #e8f5e8;
+  border: 1px solid #4caf50;
+}
+
+.noise-level {
+  margin-top: 5px;
+  font-size: 0.8rem;
+  color: #666;
+  text-align: center;
+}
+
 /* Calibration Mode */
 .calibration-mode {
   margin-bottom: 30px;

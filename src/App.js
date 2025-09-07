@@ -3,6 +3,7 @@ import "./App.css";
 import CalibrationMode from "./components/CalibrationMode";
 import PracticeMode from "./components/PracticeMode";
 import FrequencyCaptureModal from "./components/FrequencyCaptureModal";
+import { NoiseReducer } from "./utils/noiseReduction";
 
 function App() {
   const [mode, setMode] = useState("calibration"); // 'calibration' or 'practice'
@@ -21,6 +22,9 @@ function App() {
   const [dataArray, setDataArray] = useState(null);
   const [timeData, setTimeData] = useState(null);
   const [animationId, setAnimationId] = useState(null);
+  const [noiseReducer, setNoiseReducer] = useState(null);
+  const [noiseProfileReady, setNoiseProfileReady] = useState(false);
+  const [noiseLevel, setNoiseLevel] = useState(0);
 
   // Modal state
   const [isCaptureOpen, setIsCaptureOpen] = useState(false);
@@ -36,9 +40,9 @@ function App() {
           audio: {
             sampleRate: 44100,
             channelCount: 1,
-            echoCancellation: false,
-            noiseSuppression: false,
-            autoGainControl: false,
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
           },
         });
         const audioCtx = new (window.AudioContext ||
@@ -46,13 +50,45 @@ function App() {
         const analyserNode = audioCtx.createAnalyser();
         const microphoneNode = audioCtx.createMediaStreamSource(stream);
 
+        // Create advanced noise reduction processor
+        const noiseReducerInstance = new NoiseReducer(
+          4096,
+          audioCtx.sampleRate
+        );
+        setNoiseReducer(noiseReducerInstance);
+
+        const noiseReductionProcessor = audioCtx.createScriptProcessor(
+          4096,
+          1,
+          1
+        );
+
+        noiseReductionProcessor.onaudioprocess = function (
+          audioProcessingEvent
+        ) {
+          const inputBuffer = audioProcessingEvent.inputBuffer;
+          const outputBuffer = audioProcessingEvent.outputBuffer;
+          const inputData = inputBuffer.getChannelData(0);
+          const outputData = outputBuffer.getChannelData(0);
+
+          // Apply advanced noise reduction
+          const cleanedData = noiseReducerInstance.process(inputData);
+
+          // Copy cleaned data to output
+          for (let i = 0; i < outputData.length; i++) {
+            outputData[i] = cleanedData[i];
+          }
+        };
+
         analyserNode.fftSize = 4096; // Increased for better resolution
         analyserNode.smoothingTimeConstant = 0.8; // Smoothing for stability
         const bufferLength = analyserNode.frequencyBinCount;
         const dataArrayBuffer = new Uint8Array(bufferLength);
         const timeDataBuffer = new Float32Array(analyserNode.fftSize);
 
-        microphoneNode.connect(analyserNode);
+        // Connect audio through noise reduction processor
+        microphoneNode.connect(noiseReductionProcessor);
+        noiseReductionProcessor.connect(analyserNode);
 
         setAudioContext(audioCtx);
         setAnalyser(analyserNode);
@@ -131,8 +167,11 @@ function App() {
       }
     }
 
-    // Only process if we have sufficient signal
-    if (maxValue > 30 && totalEnergy > 1000) {
+    // Update noise level for monitoring
+    setNoiseLevel(Math.round((maxValue / 255) * 100));
+
+    // Only process if we have sufficient signal (reduced thresholds due to noise reduction)
+    if (maxValue > 20 && totalEnergy > 500) {
       // Method 2: Autocorrelation on time domain data
       const autocorrFreq = detectFundamentalFrequency(
         timeData,
@@ -311,6 +350,20 @@ function App() {
     successTimer,
   ]);
 
+  // Monitor noise profile status
+  useEffect(() => {
+    if (noiseReducer) {
+      const checkNoiseProfile = () => {
+        if (noiseReducer.noiseProfileReady !== noiseProfileReady) {
+          setNoiseProfileReady(noiseReducer.noiseProfileReady);
+        }
+      };
+
+      const interval = setInterval(checkNoiseProfile, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [noiseReducer, noiseProfileReady]);
+
   // Clean up timer on unmount or mode change
   useEffect(() => {
     return () => {
@@ -360,6 +413,18 @@ function App() {
               </span>
             )}
           </div>
+          {noiseReducer && (
+            <div className="noise-reduction-status">
+              {!noiseProfileReady ? (
+                <span className="noise-learning">
+                  🎵 Learning noise profile...
+                </span>
+              ) : (
+                <span className="noise-ready">✅ Noise reduction active</span>
+              )}
+              <div className="noise-level">Signal Level: {noiseLevel}%</div>
+            </div>
+          )}
         </div>
 
         {/* Calibration Mode */}
@@ -403,6 +468,7 @@ function App() {
         timeData={timeData}
         currentFrequency={currentFrequency}
         setCurrentFrequency={setCurrentFrequency}
+        noiseReducer={noiseReducer}
       />
     </div>
   );
