@@ -25,6 +25,7 @@ function App() {
   const [noiseReducer, setNoiseReducer] = useState(null);
   const [noiseProfileReady, setNoiseProfileReady] = useState(false);
   const [noiseLevel, setNoiseLevel] = useState(0);
+  const [frequencyResetTimer, setFrequencyResetTimer] = useState(null);
 
   // Modal state
   const [isCaptureOpen, setIsCaptureOpen] = useState(false);
@@ -172,6 +173,12 @@ function App() {
 
     // Only process if we have sufficient signal (reduced thresholds due to noise reduction)
     if (maxValue > 20 && totalEnergy > 500) {
+      // Clear any pending frequency reset
+      if (frequencyResetTimer) {
+        clearTimeout(frequencyResetTimer);
+        setFrequencyResetTimer(null);
+      }
+
       // Method 2: Autocorrelation on time domain data
       const autocorrFreq = detectFundamentalFrequency(
         timeData,
@@ -195,6 +202,15 @@ function App() {
       if (finalFreq >= 200 && finalFreq <= 2000) {
         // Typical flute range
         setCurrentFrequency(Math.round(finalFreq));
+      }
+    } else {
+      // No sufficient signal - set up delayed reset to prevent flickering
+      if (!frequencyResetTimer) {
+        const timer = setTimeout(() => {
+          setCurrentFrequency(0);
+          setFrequencyResetTimer(null);
+        }, 200); // 200ms delay before resetting
+        setFrequencyResetTimer(timer);
       }
     }
 
@@ -282,6 +298,10 @@ function App() {
       clearInterval(progressInterval);
       setProgressInterval(null);
     }
+    if (frequencyResetTimer) {
+      clearTimeout(frequencyResetTimer);
+      setFrequencyResetTimer(null);
+    }
 
     const availableNotes = notes.filter((note) => calibratedNotes[note]);
     const randomNote =
@@ -290,6 +310,7 @@ function App() {
     setPracticeFeedback("");
     setShowSuccessAnimation(false);
     setSuccessProgress(0);
+    setCurrentFrequency(0); // Reset frequency when starting new note
   };
 
   // Check practice note with improved tolerance and 3-second success detection
@@ -373,8 +394,11 @@ function App() {
       if (progressInterval) {
         clearInterval(progressInterval);
       }
+      if (frequencyResetTimer) {
+        clearTimeout(frequencyResetTimer);
+      }
     };
-  }, [successTimer, progressInterval]);
+  }, [successTimer, progressInterval, frequencyResetTimer]);
 
   // Next note in practice mode
   const nextNote = () => {

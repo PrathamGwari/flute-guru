@@ -105,6 +105,9 @@ const FrequencyCaptureModal = ({
         if (finalFreq >= 200 && finalFreq <= 2000) {
           captureFrequenciesRef.current.push(finalFreq);
         }
+      } else {
+        // No signal detected - reset current frequency
+        setCurrentFrequency(0);
       }
 
       const elapsed = performance.now() - startTime;
