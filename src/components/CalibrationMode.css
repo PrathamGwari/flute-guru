@@ -1,0 +1,86 @@
+/* Calibration Mode */
+.calibration-mode {
+  margin-bottom: 30px;
+}
+
+.calibration-actions {
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.default-freq-btn {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.default-freq-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.default-freq-btn:active {
+  transform: translateY(0);
+}
+
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin: 30px 0;
+}
+
+.note-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  border: 1px solid #e9ecef;
+  gap: 10px;
+}
+
+.note-name {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.note-frequency {
+  font-size: 1.1rem;
+  color: #666;
+  min-height: 1.5em;
+}
+
+.capture-btn {
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.capture-btn:hover {
+  background-color: #218838;
+}
+
+.calibration-complete {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #c3e6cb;
+  margin-top: 20px;
+}
