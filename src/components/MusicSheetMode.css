@@ -1,0 +1,364 @@
+/* Music Sheet Mode */
+.music-sheet-mode {
+  margin-bottom: 30px;
+  padding: 30px;
+  background-color: #f8f9fa;
+  border-radius: 15px;
+  border: 2px solid #e9ecef;
+}
+
+.music-sheet-mode h2 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 1.8rem;
+}
+
+.music-sheet-mode p {
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 1.1rem;
+}
+
+/* Recording Controls */
+.recording-controls {
+  margin-bottom: 30px;
+}
+
+.recording-section {
+  text-align: center;
+  padding: 20px;
+  background-color: white;
+  border-radius: 10px;
+  border: 1px solid #e9ecef;
+}
+
+.start-recording-btn {
+  padding: 15px 30px;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  margin-bottom: 15px;
+}
+
+.start-recording-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+
+.start-recording-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.recording-instructions {
+  color: #666;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Recording Active */
+.recording-active {
+  text-align: center;
+  padding: 20px;
+  background-color: #fff3cd;
+  border-radius: 10px;
+  border: 2px solid #ffeaa7;
+}
+
+.recording-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #856404;
+}
+
+.recording-dot {
+  width: 12px;
+  height: 12px;
+  background-color: #dc3545;
+  border-radius: 50%;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.recording-timer {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #dc3545;
+  margin-bottom: 20px;
+  font-family: 'Courier New', monospace;
+}
+
+.stop-recording-btn {
+  padding: 12px 24px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+  margin-bottom: 15px;
+}
+
+.stop-recording-btn:hover {
+  background-color: #c82333;
+}
+
+.current-note-display {
+  font-size: 1.1rem;
+  color: #666;
+}
+
+.current-note {
+  font-weight: bold;
+  color: #007bff;
+  font-size: 1.2rem;
+}
+
+/* Recorded Data Section */
+.recorded-data-section {
+  text-align: center;
+  padding: 20px;
+  background-color: #d4edda;
+  border-radius: 10px;
+  border: 1px solid #c3e6cb;
+}
+
+.recording-summary h3 {
+  color: #155724;
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+}
+
+.recording-summary p {
+  color: #155724;
+  margin: 5px 0;
+  font-size: 1.1rem;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.play-recording-btn {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+.play-recording-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+}
+
+.download-json-btn {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+}
+
+.download-json-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+}
+
+/* Playback Section */
+.playback-section {
+  padding: 20px;
+  background-color: #e3f2fd;
+  border-radius: 10px;
+  border: 1px solid #bbdefb;
+  margin-bottom: 20px;
+}
+
+.playback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.playback-header h3 {
+  color: #1976d2;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.playback-timer {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1976d2;
+  font-family: 'Courier New', monospace;
+}
+
+.playback-feedback {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.target-note {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.target-note-name {
+  font-weight: bold;
+  color: #1976d2;
+  font-size: 1.4rem;
+}
+
+.playback-status {
+  min-height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.feedback {
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: 15px 30px;
+  border-radius: 10px;
+  min-width: 200px;
+  text-align: center;
+}
+
+.feedback.correct {
+  background-color: #d4edda;
+  color: #155724;
+  border: 2px solid #c3e6cb;
+}
+
+.feedback.incorrect {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 2px solid #f5c6cb;
+}
+
+.feedback.waiting {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 2px solid #ffeaa7;
+}
+
+.playback-controls {
+  text-align: center;
+}
+
+.stop-playback-btn {
+  padding: 12px 24px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.stop-playback-btn:hover {
+  background-color: #c82333;
+}
+
+/* Calibration Status */
+.calibration-status {
+  padding: 20px;
+  background-color: white;
+  border-radius: 10px;
+  border: 1px solid #e9ecef;
+}
+
+.calibration-status h4 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.calibrated-notes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.calibrated-note {
+  padding: 5px 10px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.no-calibration {
+  color: #dc3545;
+  font-style: italic;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .action-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .playback-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .calibrated-notes {
+    justify-content: center;
+  }
+  
+  .recording-timer {
+    font-size: 2rem;
+  }
+}
+

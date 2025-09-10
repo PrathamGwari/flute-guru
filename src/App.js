@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 import CalibrationMode from "./components/CalibrationMode";
 import PracticeMode from "./components/PracticeMode";
+import MusicSheetMode from "./components/MusicSheetMode";
 import FrequencyCaptureModal from "./components/FrequencyCaptureModal";
 import { NoiseReducer } from "./utils/noiseReduction";
 
 function App() {
-  const [mode, setMode] = useState("calibration"); // 'calibration' or 'practice'
+  const [mode, setMode] = useState("calibration"); // 'calibration', 'practice', or 'musicSheet'
   const [currentFrequency, setCurrentFrequency] = useState(0);
   const [isListening, setIsListening] = useState(false);
   const [calibratedNotes, setCalibratedNotes] = useState({});
@@ -26,6 +27,16 @@ function App() {
   const [noiseProfileReady, setNoiseProfileReady] = useState(false);
   const [noiseLevel, setNoiseLevel] = useState(0);
   const [frequencyResetTimer, setFrequencyResetTimer] = useState(null);
+
+  // Music Sheet state
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordedData, setRecordedData] = useState([]);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentPlaybackTime, setCurrentPlaybackTime] = useState(0);
+  const [currentPlaybackNote, setCurrentPlaybackNote] = useState("");
+  const [playbackFeedback, setPlaybackFeedback] = useState("");
+  const [playbackInterval, setPlaybackInterval] = useState(null);
+  const [recordingStartTime, setRecordingStartTime] = useState(null);
 
   // Modal state
   const [isCaptureOpen, setIsCaptureOpen] = useState(false);
@@ -405,6 +416,144 @@ function App() {
     getRandomNote();
   };
 
+  // Get note from frequency using calibrated notes
+  const getNoteFromCalibratedFrequency = (freq) => {
+    if (
+      !calibratedNotes ||
+      Object.keys(calibratedNotes).length === 0 ||
+      freq === 0
+    )
+      return null;
+
+    const tolerance = 0.05; // 5% tolerance
+    for (const [note, calibratedFreq] of Object.entries(calibratedNotes)) {
+      if (Math.abs(freq - calibratedFreq) <= calibratedFreq * tolerance) {
+        return note;
+      }
+    }
+    return null;
+  };
+
+  // Start recording music sheet
+  const startRecording = () => {
+    setIsRecording(true);
+    setRecordedData([]);
+    setRecordingStartTime(Date.now());
+  };
+
+  // Stop recording music sheet
+  const stopRecording = () => {
+    setIsRecording(false);
+    setRecordingStartTime(null);
+  };
+
+  // Start playing recorded music sheet
+  const startPlayback = () => {
+    if (recordedData.length === 0) return;
+
+    setIsPlaying(true);
+    setCurrentPlaybackTime(0);
+    setCurrentPlaybackNote("");
+    setPlaybackFeedback("waiting");
+
+    // Start playback timer
+    const interval = setInterval(() => {
+      setCurrentPlaybackTime((prev) => {
+        const newTime = prev + 1;
+
+        // Find current note for this second
+        const currentEntry = recordedData.find(
+          (entry) => entry.time === newTime
+        );
+        if (currentEntry) {
+          setCurrentPlaybackNote(currentEntry.note);
+        } else {
+          setCurrentPlaybackNote("");
+        }
+
+        // Check if playback is complete
+        if (newTime >= recordedData.length) {
+          setIsPlaying(false);
+          setCurrentPlaybackNote("");
+          setPlaybackFeedback("");
+          clearInterval(interval);
+          setPlaybackInterval(null);
+        }
+
+        return newTime;
+      });
+    }, 1000);
+
+    setPlaybackInterval(interval);
+  };
+
+  // Stop playing recorded music sheet
+  const stopPlayback = () => {
+    setIsPlaying(false);
+    setCurrentPlaybackTime(0);
+    setCurrentPlaybackNote("");
+    setPlaybackFeedback("");
+    if (playbackInterval) {
+      clearInterval(playbackInterval);
+      setPlaybackInterval(null);
+    }
+  };
+
+  // Record note data during recording
+  useEffect(() => {
+    if (isRecording && currentFrequency > 0) {
+      const detectedNote = getNoteFromCalibratedFrequency(currentFrequency);
+      const currentTime =
+        Math.floor((Date.now() - recordingStartTime) / 1000) + 1;
+
+      setRecordedData((prev) => {
+        const newData = [...prev];
+        const existingEntryIndex = newData.findIndex(
+          (entry) => entry.time === currentTime
+        );
+
+        if (detectedNote) {
+          const entry = {
+            time: currentTime,
+            note: detectedNote,
+            frequency: currentFrequency,
+          };
+
+          if (existingEntryIndex >= 0) {
+            newData[existingEntryIndex] = entry;
+          } else {
+            newData.push(entry);
+          }
+        }
+
+        return newData;
+      });
+    }
+  }, [isRecording, currentFrequency, recordingStartTime, calibratedNotes]);
+
+  // Check playback feedback during practice
+  useEffect(() => {
+    if (isPlaying && currentPlaybackNote && currentFrequency > 0) {
+      const detectedNote = getNoteFromCalibratedFrequency(currentFrequency);
+      if (detectedNote === currentPlaybackNote) {
+        setPlaybackFeedback("correct");
+      } else {
+        setPlaybackFeedback("incorrect");
+      }
+    } else if (isPlaying && currentPlaybackNote && currentFrequency === 0) {
+      setPlaybackFeedback("waiting");
+    }
+  }, [isPlaying, currentPlaybackNote, currentFrequency, calibratedNotes]);
+
+  // Clean up playback interval on unmount
+  useEffect(() => {
+    return () => {
+      if (playbackInterval) {
+        clearInterval(playbackInterval);
+      }
+    };
+  }, [playbackInterval]);
+
   return (
     <div className="App">
       <header className="App-header">
@@ -423,6 +572,12 @@ function App() {
             onClick={() => startPractice()}
           >
             Practice Mode
+          </button>
+          <button
+            className={mode === "musicSheet" ? "active" : ""}
+            onClick={() => setMode("musicSheet")}
+          >
+            Generate Music Sheet
           </button>
         </div>
 
@@ -473,6 +628,25 @@ function App() {
             onNextNote={nextNote}
             showSuccessAnimation={showSuccessAnimation}
             successProgress={successProgress}
+          />
+        )}
+
+        {/* Music Sheet Mode */}
+        {mode === "musicSheet" && (
+          <MusicSheetMode
+            calibratedNotes={calibratedNotes}
+            currentFrequency={currentFrequency}
+            isListening={isListening}
+            onStartRecording={startRecording}
+            onStopRecording={stopRecording}
+            onPlayRecording={startPlayback}
+            onStopPlayback={stopPlayback}
+            isRecording={isRecording}
+            isPlaying={isPlaying}
+            recordedData={recordedData}
+            currentPlaybackTime={currentPlaybackTime}
+            currentPlaybackNote={currentPlaybackNote}
+            playbackFeedback={playbackFeedback}
           />
         )}
       </header>

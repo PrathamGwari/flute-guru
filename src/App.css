@@ -35,6 +35,7 @@ h3 {
   justify-content: center;
   gap: 15px;
   margin-bottom: 40px;
+  flex-wrap: wrap;
 }
 
 .mode-toggle button {
@@ -284,6 +285,7 @@ h3 {
   
   .mode-toggle button {
     width: 200px;
+    margin-bottom: 10px;
   }
 }
 
